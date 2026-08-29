@@ -6,9 +6,8 @@ import bcrypt from "bcryptjs";
 const globalStore = globalThis as any;
 if (!globalStore.__codeland_users) {
   globalStore.__codeland_users = new Map();
-  const demoId = "demo-user-001";
   globalStore.__codeland_users.set("demo@codeland.dev", {
-    id: demoId,
+    id: "demo-user-001",
     name: "Demo User",
     username: "demo",
     email: "demo@codeland.dev",
@@ -21,57 +20,43 @@ if (!globalStore.__codeland_users) {
 }
 const users: Map<string, any> = globalStore.__codeland_users;
 
-const providers: NextAuthOptions["providers"] = [
-  CredentialsProvider({
-    name: "credentials",
-    credentials: {
-      email: { label: "Email", type: "email" },
-      password: { label: "Password", type: "password" },
-    },
-    async authorize(credentials) {
-      if (!credentials?.email || !credentials?.password) {
-        throw new Error("Email and password required");
-      }
-
-      const user = users.get(credentials.email);
-      if (!user) {
-        throw new Error("No account found with this email");
-      }
-
-      const isValid = await bcrypt.compare(credentials.password, user.password);
-      if (!isValid) {
-        throw new Error("Invalid password");
-      }
-
-      return {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        image: user.image,
-      };
-    },
-  }),
-];
-
-// Only add GitHub provider if env vars are configured
-if (process.env.GITHUB_ID && process.env.GITHUB_SECRET) {
-  import("next-auth/providers/github").then(({ default: GitHubProvider }) => {
-    providers.push(
-      GitHubProvider({
-        clientId: process.env.GITHUB_ID!,
-        clientSecret: process.env.GITHUB_SECRET!,
-      })
-    );
-  });
-}
-
 export const authOptions: NextAuthOptions = {
   session: { strategy: "jwt" },
   pages: {
     signIn: "/login",
     error: "/login",
   },
-  providers,
+  providers: [
+    CredentialsProvider({
+      name: "credentials",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          throw new Error("Email and password required");
+        }
+
+        const user = users.get(credentials.email);
+        if (!user) {
+          throw new Error("No account found with this email");
+        }
+
+        const isValid = await bcrypt.compare(credentials.password, user.password);
+        if (!isValid) {
+          throw new Error("Invalid password");
+        }
+
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          image: user.image,
+        };
+      },
+    }),
+  ],
   callbacks: {
     async session({ session, token }) {
       if (session.user && token.sub) {
@@ -94,8 +79,6 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     async redirect({ url, baseUrl }) {
-      if (url.startsWith("/")) return `${baseUrl}${url}`;
-      if (new URL(url).origin === baseUrl) return url;
       return baseUrl;
     },
   },
