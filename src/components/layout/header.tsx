@@ -109,6 +109,12 @@ export function Header() {
         <div className="flex items-center gap-2">
           {session ? (
             <>
+              <Link
+                href="/dashboard"
+                className="hidden rounded-md px-3 py-1.5 text-sm font-medium text-dark-600 hover:bg-dark-100 hover:text-dark-900 sm:block"
+              >
+                Dashboard
+              </Link>
               <Button
                 asChild
                 variant="ghost"
@@ -171,15 +177,15 @@ export function Header() {
                     </div>
                   </div>
                   <DropdownMenuSeparator className="bg-dark-200" />
-                  <DropdownMenuItem asChild>
-                    <Link
-                      href={`/${(session.user as any)?.username || "user"}`}
-                      className="flex cursor-pointer items-center gap-2 text-dark-700"
-                    >
-                      <User className="h-4 w-4" />
-                      Your profile
-                    </Link>
-                  </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link
+                    href="/dashboard"
+                    className="flex cursor-pointer items-center gap-2 text-dark-700"
+                  >
+                    <User className="h-4 w-4" />
+                    Dashboard
+                  </Link>
+                </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link
                       href="/repos/new"
