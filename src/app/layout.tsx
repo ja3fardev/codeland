@@ -17,18 +17,27 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "CodeLand",
-  description: "The legendary developer platform",
-  icons: {
-    icon: "/favicon.ico",
+  title: {
+    default: "CodeLand",
+    template: "%s | CodeLand",
+  },
+  description: "The legendary developer platform. Build, share, and discover amazing software.",
+  openGraph: {
+    title: "CodeLand",
+    description: "The legendary developer platform",
+    url: "https://codeland-two.vercel.app",
+    siteName: "CodeLand",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "CodeLand",
+    description: "The legendary developer platform",
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
-  ],
+  themeColor: "#0a0a0f",
 };
 
 export default function RootLayout({
@@ -39,10 +48,13 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${jetbrainsMono.variable} antialiased`}
+      className={`dark ${inter.variable} ${jetbrainsMono.variable} antialiased`}
       suppressHydrationWarning
     >
-      <body className="min-h-screen bg-background font-sans text-foreground">
+      <head>
+        <meta name="theme-color" content="#0a0a0f" />
+      </head>
+      <body className="min-h-screen bg-dark-0 font-sans text-dark-900">
         <Providers>
           <div className="relative flex min-h-screen flex-col">
             <Header />

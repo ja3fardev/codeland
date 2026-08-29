@@ -13,18 +13,28 @@ const registerSchema = z.object({
       "Username can only contain letters, numbers, hyphens, and underscores"
     ),
   email: z.string().email("Invalid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
-// In-memory store for demo purposes
-const users: Array<{
-  id: string;
-  name: string;
-  username: string;
-  email: string;
-  password: string;
-  createdAt: Date;
-}> = [];
+// Global in-memory user store (persists across hot reloads in dev)
+const globalStore = globalThis as any;
+if (!globalStore.__codeland_users) {
+  globalStore.__codeland_users = new Map();
+  // Seed demo user
+  const demoId = "demo-user-001";
+  globalStore.__codeland_users.set("demo@codeland.dev", {
+    id: demoId,
+    name: "Demo User",
+    username: "demo",
+    email: "demo@codeland.dev",
+    password: bcrypt.hashSync("demo123", 10),
+    image: "https://avatars.githubusercontent.com/u/1?v=4",
+    bio: "Just exploring CodeLand!",
+    location: "San Francisco",
+    createdAt: new Date("2024-01-01"),
+  });
+}
+const users: Map<string, any> = globalStore.__codeland_users;
 
 export async function POST(request: Request) {
   try {
@@ -42,7 +52,7 @@ export async function POST(request: Request) {
     const { name, username, email, password } = result.data;
 
     // Check if email already exists
-    if (users.some((u) => u.email === email)) {
+    if (users.has(email)) {
       return NextResponse.json(
         { error: "Email already in use" },
         { status: 409 }
@@ -50,25 +60,31 @@ export async function POST(request: Request) {
     }
 
     // Check if username already exists
-    if (users.some((u) => u.username === username)) {
-      return NextResponse.json(
-        { error: "Username already taken" },
-        { status: 409 }
-      );
+    for (const user of users.values()) {
+      if (user.username === username) {
+        return NextResponse.json(
+          { error: "Username already taken" },
+          { status: 409 }
+        );
+      }
     }
 
-    const hashedPassword = await bcrypt.hash(password, 12);
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const id = `user-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
     const newUser = {
-      id: crypto.randomUUID(),
+      id,
       name,
       username,
       email,
       password: hashedPassword,
+      image: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=6366f1&color=fff`,
+      bio: "",
+      location: "",
       createdAt: new Date(),
     };
 
-    users.push(newUser);
+    users.set(email, newUser);
 
     return NextResponse.json(
       {
