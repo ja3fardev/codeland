@@ -1,0 +1,58 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+  }
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+  }
+}
+
+* {
+  border-color: theme("colors.surface.200");
+}
+.dark * {
+  border-color: theme("colors.dark.200");
+}
+
+body {
+  color: theme("colors.surface.900");
+  background: theme("colors.surface.0");
+}
+.dark body {
+  color: theme("colors.dark.900");
+  background: theme("colors.dark.0");
+}
+
+::selection {
+  background: theme("colors.brand.200");
+}
+.dark ::selection {
+  background: theme("colors.brand.800");
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: theme("colors.surface.300");
+  border-radius: 4px;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: theme("colors.dark.300");
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
