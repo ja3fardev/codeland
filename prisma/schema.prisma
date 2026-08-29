@@ -60,6 +60,7 @@ model User {
   sessions      Session[]
   repos         Repository[]
   issues        Issue[]
+  assignedIssues Issue[]       @relation("IssueAssignee")
   comments      Comment[]
   stars         Star[]
   watches       Watch[]
@@ -68,6 +69,8 @@ model User {
   pullRequests  PullRequest[]
   releases      Release[]
   notifications Notification[]
+  fileCommits   FileCommit[]
+  commits       Commit[]
 }
 
 model Repository {
